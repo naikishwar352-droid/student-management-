@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB connected"))
 .catch(err=>console.log(err));
 
-app.use("/users", studentRouter);
+app.use("/students", studentRouter);
 
 const PORT = process.env.PORT || 5000;
 
