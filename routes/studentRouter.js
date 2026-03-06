@@ -1,43 +1,34 @@
 const express = require("express");
-const mongoose = require("mongoose");
-
 const router = express.Router();
+const Student = require("../models/studentModel");
 
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  department: String,
-  cgpa: Number
-});
-
-const User = mongoose.model("User", userSchema);
-
-// GET all users
+// GET all students
 router.get("/", async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
+    const students = await Student.find();
+    res.json(students);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
+  } 
 });
 
-// POST new user
+// POST new student
 router.post("/", async (req, res) => {
-  const user = new User(req.body);
+  const student = new Student(req.body);
 
   try {
-    const newUser = await user.save();
-    res.status(201).json(newUser);
+    const newStudent = await student.save();
+    res.status(201).json(newStudent);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
-// DELETE user
+
+// DELETE student
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User deleted successfully" });
+    await Student.findByIdAndDelete(req.params.id);
+    res.json({ message: "Student deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
