@@ -1,36 +1,30 @@
 const express = require("express");
-const mongoose = require("mongoose");
-
 const router = express.Router();
+const Student = require("../models/student");
 
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  department: String,
-  cgpa: Number
-});
-
-const User = mongoose.model("User", userSchema);
-
-// GET all users
+// GET all students
 router.get("/", async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const students = await Student.find();
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
-// POST new user
+// ADD student
 router.post("/", async (req, res) => {
-  const user = new User(req.body);
+  const student = new Student({
+    name: req.body.name,
+    email: req.body.email,
+    course: req.body.course
+  });
 
   try {
-    const newUser = await user.save();
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const newStudent = await student.save();
+    res.status(201).json(newStudent);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 

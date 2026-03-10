@@ -2,26 +2,24 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-// 🔴 REPLACE THIS WITH YOUR REAL RENDER BACKEND URL
-const API = "https://YOUR-REAL-BACKEND.onrender.com/users";
-
+const API = "https://student-backend-repq.onrender.com/students";
 const SITE_PASSWORD = "srushti9611";
 
 function App() {
-  // 🔐 Password Lock State
+
   const [isUnlocked, setIsUnlocked] = useState(
     localStorage.getItem("siteUnlocked") === "true"
   );
   const [passwordInput, setPasswordInput] = useState("");
 
-  // 🎓 Student App State
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState({
     name: "",
     email: "",
     department: "",
-    cgpa: "",
+    cgpa: ""
   });
+
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
@@ -36,13 +34,16 @@ function App() {
     try {
       const res = await axios.get(API);
       setStudents(res.data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -54,29 +55,47 @@ function App() {
     }
 
     try {
+
+      const studentData = {
+        ...form,
+        cgpa: Number(form.cgpa)
+      };
+
       if (editingId) {
-        await axios.put(${API}/${editingId}, form);
+
+        await axios.put(`${API}/${editingId}`, studentData);
         setMessage("Student Updated Successfully ✅");
         setEditingId(null);
+
       } else {
-        await axios.post(API, form);
+
+        await axios.post(API, studentData);
         setMessage("Student Added Successfully 🎉");
+
       }
 
-      setForm({ name: "", email: "", department: "", cgpa: "" });
+      setForm({
+        name: "",
+        email: "",
+        department: "",
+        cgpa: ""
+      });
+
       fetchStudents();
       setTimeout(() => setMessage(""), 3000);
-    } catch (error) {
-      console.error("Error saving student:", error);
+
+    } catch (err) {
+      console.log(err);
+      alert("Error saving student");
     }
   };
 
   const deleteStudent = async (id) => {
     try {
-      await axios.delete(${API}/${id});
+      await axios.delete(`${API}/${id}`);
       fetchStudents();
-    } catch (error) {
-      console.error("Error deleting student:", error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -85,8 +104,9 @@ function App() {
       name: student.name,
       email: student.email,
       department: student.department,
-      cgpa: student.cgpa,
+      cgpa: student.cgpa
     });
+
     setEditingId(student._id);
   };
 
@@ -94,13 +114,11 @@ function App() {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 🔒 PASSWORD LOCK SCREEN
   if (!isUnlocked) {
     return (
       <div style={lockStyles.container}>
         <div style={lockStyles.card}>
           <h2>🔒 Private Hackathon Project</h2>
-          <p>Enter access password to continue</p>
 
           <input
             type="password"
@@ -117,7 +135,7 @@ function App() {
                 localStorage.setItem("siteUnlocked", "true");
                 setIsUnlocked(true);
               } else {
-                alert("Incorrect Password ❌");
+                alert("Incorrect Password");
               }
             }}
           >
@@ -128,134 +146,133 @@ function App() {
     );
   }
 
-  // 🎓 MAIN APP UI
   return (
     <div className="container">
-      <h1 className="title">🎓 Student Management System</h1>
+
+      <h1>🎓 Student Management System</h1>
 
       {message && <div className="alert">{message}</div>}
 
-      <div className="card">
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Name"
-            />
-            <input
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email"
-            />
-            <input
-              name="department"
-              value={form.department}
-              onChange={handleChange}
-              placeholder="Department"
-            />
-            <input
-              name="cgpa"
-              value={form.cgpa}
-              onChange={handleChange}
-              placeholder="CGPA"
-              type="number"
-            />
-            <button type="submit">
-              {editingId ? "Update" : "Add"}
-            </button>
-          </div>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit}>
 
-      <div className="search-bar">
         <input
-          placeholder="🔍 Search by name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          name="name"
+          placeholder="Name"
+          value={form.name}
+          onChange={handleChange}
         />
-      </div>
 
-      <h2>All Students ({filteredStudents.length})</h2>
+        <input
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+        />
 
-      <div className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>CGPA</th>
-              <th>Action</th>
+        <input
+          name="department"
+          placeholder="Department"
+          value={form.department}
+          onChange={handleChange}
+        />
+
+        <input
+          name="cgpa"
+          type="number"
+          placeholder="CGPA"
+          value={form.cgpa}
+          onChange={handleChange}
+        />
+
+        <button type="submit">
+          {editingId ? "Update" : "Add"}
+        </button>
+
+      </form>
+
+      <br />
+
+      <input
+        placeholder="Search student..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <h3>All Students ({filteredStudents.length})</h3>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>CGPA</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredStudents.map((s) => (
+
+            <tr key={s._id}>
+
+              <td>{s.name}</td>
+              <td>{s.email}</td>
+              <td>{s.department}</td>
+              <td>{s.cgpa}</td>
+
+              <td>
+
+                <button onClick={() => editStudent(s)}>
+                  Edit
+                </button>
+
+                <button onClick={() => deleteStudent(s._id)}>
+                  Delete
+                </button>
+
+              </td>
+
             </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.map((s) => (
-              <tr key={s._id}>
-                <td>{s.name}</td>
-                <td>{s.email}</td>
-                <td>{s.department}</td>
-                <td>{s.cgpa}</td>
-                <td>
-                  <button
-                    className="edit"
-                    type="button"
-                    onClick={() => editStudent(s)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="delete"
-                    type="button"
-                    onClick={() => deleteStudent(s._id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+          ))}
+        </tbody>
+
+      </table>
+
     </div>
   );
 }
 
-// 🔐 Lock Screen Styles
 const lockStyles = {
   container: {
     height: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(135deg, #4e73df, #1cc88a)",
+    background: "linear-gradient(135deg,#4e73df,#1cc88a)"
   },
+
   card: {
     background: "#fff",
     padding: "40px",
     borderRadius: "12px",
-    textAlign: "center",
-    width: "350px",
-    boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
+    textAlign: "center"
   },
+
   input: {
     width: "100%",
     padding: "10px",
-    marginTop: "15px",
-    marginBottom: "15px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
+    margin: "10px 0"
   },
+
   button: {
     padding: "10px 20px",
-    border: "none",
-    borderRadius: "6px",
     background: "#4e73df",
-    color: "white",
-    cursor: "pointer",
-  },
+    color: "#fff",
+    border: "none"
+  }
 };
 
 export default App;
