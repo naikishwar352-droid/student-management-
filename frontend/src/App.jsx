@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-const API = "https://student-backend-repq.onrender.com/students";
+const API = "http://localhost:5000/api/students";
 const SITE_PASSWORD = "srushti9611";
 
 function App() {
@@ -91,13 +91,23 @@ function App() {
   };
 
   const deleteStudent = async (id) => {
-    try {
-      await axios.delete(`${API}/${id}`);
-      fetchStudents();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
+    if (!confirmDelete) return;
+
+    await axios.delete("http://localhost:5000/api/students/" + id);
+
+    setStudents(students.filter((s) => s._id !== id));
+
+    setMessage("Student Deleted Successfully ❌");
+    setTimeout(() => setMessage(""), 3000);
+
+  } catch (err) {
+    console.log(err);
+    alert("Delete failed");
+  }
+};
 
   const editStudent = (student) => {
     setForm({
